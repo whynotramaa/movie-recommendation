@@ -1,4 +1,5 @@
-<<<<<<< HEAD
+🎬 Discover your next favorite movie! Our AI-powered movie recommendation app suggests films based on your taste, mood & viewing history. Explore genres, get personalized picks & never miss a great film! 🍿✨
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
