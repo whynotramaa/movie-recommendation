@@ -3,9 +3,23 @@
 
 @import "tailwindcss";
 
-*{
-    /* overflow-x: hidden;  */
+html, body {
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  overflow-y: auto; /* Keep vertical scrolling enabled */
+  margin: 0;
+  padding: 0;
+  width: 100vw;
 }
+
+::-webkit-scrollbar {
+  width: 0px; /* Hide the scrollbar */
+  height: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent; /* Ensure scrollbar remains hidden */
+}
+
 @theme {
   --color-primary: #030014;
 
