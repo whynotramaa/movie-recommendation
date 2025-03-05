@@ -4,7 +4,7 @@
 @import "tailwindcss";
 
 *{
-    /* overflow: hidden; */
+    /* overflow-x: hidden;  */
 }
 @theme {
   --color-primary: #030014;
