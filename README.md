@@ -1,15 +1,52 @@
 🎬 Discover your next favorite movie! Our AI-powered movie recommendation app suggests films based on your taste, mood & viewing history. Explore genres, get personalized picks & never miss a great film! 🍿✨
+# Movie Recommendation
 
-# React + Vite
+Welcome to the Movie Recommendation project—a dynamic movie search and recommendation platform built with Vite, React, and Tailwind CSS. This guided project is my first full-fledged build, where I learned the ins and outs of modern web development while crafting a sleek, responsive UI and integrating powerful features.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Technologies](#technologies)
+- [Demo](#demo)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Known Issues](#known-issues)
+- [Future Improvements](#future-improvements)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project is a movie search platform designed to provide real-time movie data with a user-friendly experience. It leverages the TMDB API to fetch movie details, while a trending section powered by Appwrite tracks search counts and displays the hottest picks. With debounced search functionality, the app minimizes unnecessary API calls, keeping the server happy and the experience smooth.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Sleek UI:** Built with Tailwind CSS to ensure a modern and responsive design.
+- **Debounced Search:** Optimized search input to prevent excessive API calls.
+- **Real-Time Movie Data:** Integration with the TMDB API provides up-to-date movie information.
+- **Trending Section:** Utilizes Appwrite to track search counts and spotlight the top 5 movies.
+- **Top 20 Movies:** Intended to showcase the most popular movies (currently under troubleshooting due to CORS issues).
 
+## Technologies
+
+- [Vite](https://vitejs.dev/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [TMDB API](https://www.themoviedb.org/documentation/api)
+- [Appwrite](https://appwrite.io/)
+
+## Demo
+
+Check out the live version of the project (note: the "Top 20 Movies" feature is pending a fix for a CORS issue on the hosted version):
+
+![UI Screenshot](./screenshot.png)  
+*The UI boasts vibrant movie posters and an intuitive layout.*
+
+## Setup
+
+To get a local copy up and running, follow these steps:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/whynotramaa/movie-recommendation.git
