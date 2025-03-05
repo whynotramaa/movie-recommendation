@@ -40,7 +40,8 @@ This project is a movie search platform designed to provide real-time movie data
 
 Check out the live version of the project (note: the "Top 20 Movies" feature is pending a fix for a CORS issue on the hosted version):
 
-![UI Screenshot](./screenshot.png)  
+![UI Screenshot](./screenshot.png)
+![UI Screenshot](./screenshot1.png)
 *The UI boasts vibrant movie posters and an intuitive layout.*
 
 ## Setup
