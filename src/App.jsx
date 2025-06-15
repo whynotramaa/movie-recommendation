@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Search from './components/Search'
 import MovieCard from './components/MovieCard';
+import MovieModal from './components/MovieModal';
 import { useDebounce } from 'react-use';
 import { getTrendingMovies, updateSearchCount } from './appwrite';
 
@@ -31,6 +32,8 @@ const App = () => {
   // +++++++++++++++++++VERY VERY IMPORTANT++++++++++++++++++++++++++++++++++++++++++++
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  const [selectedMovie, setSelectedMovie] = useState(null)
 
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
 
@@ -96,6 +99,43 @@ const App = () => {
     loadTrendingMovies()
   }, [])
 
+  const handleMovieClick = (movie) => {
+    setSelectedMovie(movie)
+  }
+
+  const handleCloseModal = () => {
+    setSelectedMovie(null)
+  }
+
+  const handleTrendingMovieClick = async (movie) => {
+    try {
+      // Fetch movie details from TMDB first
+      const response = await fetch(
+        `${API_BASE_URL}/movie/${movie.movie_id}`,
+        API_OPTIONS
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch movie details')
+      }
+
+      const tmdbMovie = await response.json()
+      setSelectedMovie(tmdbMovie)
+    } catch (error) {
+      console.error('Error fetching movie details:', error)
+      // Fallback to basic data if fetch fails
+      const fallbackMovie = {
+        id: movie.movie_id,
+        title: movie.title,
+        poster_path: movie.poster_url.split('/').pop(),
+        vote_average: 0,
+        original_language: 'en',
+        release_date: ''
+      }
+      setSelectedMovie(fallbackMovie)
+    }
+  }
+
   return (
     <main>
       <div className="pattern" />
@@ -112,10 +152,12 @@ const App = () => {
 
             <ul>
               {trendingMovies.map((movie, index) => (
-                <li key={movie.$id}>
-                  <p>
-                    {index + 1}
-                  </p>
+                <li 
+                  key={movie.$id}
+                  onClick={() => handleTrendingMovieClick(movie)}
+                  className="cursor-pointer transition-transform hover:scale-105"
+                >
+                  <p>{index + 1}</p>
                   <img src={movie.poster_url} alt={movie.title} />
                 </li>
               ))}
@@ -140,7 +182,11 @@ const App = () => {
               ) : (
                 <ul>
                   {movieList.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} />
+                    <MovieCard 
+                      key={movie.id} 
+                      movie={movie} 
+                      onMovieClick={handleMovieClick}
+                    />
                   ))}
                 </ul>
               )
@@ -151,6 +197,13 @@ const App = () => {
 
         <h1 className='text-white'>{searchTerm}</h1>
       </div>
+
+      {selectedMovie && (
+        <MovieModal 
+          movie={selectedMovie} 
+          onClose={handleCloseModal}
+        />
+      )}
     </main>
   )
 }

@@ -1,23 +1,26 @@
 import React from 'react'
 
-const MovieCard = ( {movie : {title, vote_average, poster_path, release_date, original_language, id}} ) => {
+const MovieCard = ({ movie, onMovieClick }) => {
   return (
-    <div className="movie-card">
-        <img src={poster_path ? `https://image.tmdb.org/t/p/w500/${poster_path}` : '/No-Poster.png'} alt={title} />
-        <div className="mt-4">
-            <h3>{title}</h3>
+    <div 
+      className="movie-card cursor-pointer transition-transform hover:scale-105"
+      onClick={() => onMovieClick(movie)}
+    >
+      <img src={movie.poster_path ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : '/No-Poster.png'} alt={movie.title} />
+      <div className="mt-4">
+          <h3>{movie.title}</h3>
 
-            <div className="content">
-                <div className="rating">
-                    <img src="/star.svg" alt="star icon" />
-                    <p> {vote_average? vote_average.toFixed(1) : "N/A"} </p>
-                    <span>•</span>
-                    <p className='lang'>{original_language}</p>
-                    <span>•</span>
-                    <p className='year'> {release_date?release_date.split('-')[0] : "N/A"} </p>
-                </div>
-            </div>
-        </div>
+          <div className="content">
+              <div className="rating">
+                  <img src="/star.svg" alt="star icon" />
+                  <p> {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"} </p>
+                  <span>•</span>
+                  <p className='lang'>{movie.original_language}</p>
+                  <span>•</span>
+                  <p className='year'> {movie.release_date ? movie.release_date.split('-')[0] : "N/A"} </p>
+              </div>
+          </div>
+      </div>
     </div>
   )
 }
