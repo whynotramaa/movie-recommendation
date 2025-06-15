@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import Search from './components/Search'
 import MovieCard from './components/MovieCard';
 import MovieModal from './components/MovieModal';
@@ -28,73 +28,113 @@ const App = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [selectedMovie, setSelectedMovie] = useState(null)
+
+  const [page, setPage] = useState(1)
+
+  const [hasMore, setHasMore] = useState(true)
+
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+
+  const [totalPages, setTotalPages] = useState(0)
+
   // USING DEBOUNCED SEARCH SO TH API CALLS AFTER HALF A SECOND
   // +++++++++++++++++++VERY VERY IMPORTANT++++++++++++++++++++++++++++++++++++++++++++
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
-  const [selectedMovie, setSelectedMovie] = useState(null)
+  const observer = useRef()
+
+  const lastMovieElementRef = useCallback(node => {
+    if (isLoadingMore) return
+    if (observer.current) observer.current.disconnect()
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1)
+      }
+    })
+    if (node) observer.current.observe(node)
+  }, [isLoadingMore, hasMore])
 
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
 
-  const fetchMovies = async (query = '') => {
-
-    setIsLoading(true);
-    setErrorMessage('');
+  const fetchMovies = async (query = '', pageNum = 1, isLoadMore = false) => {
+    if (isLoadMore) {
+      setIsLoadingMore(true)
+    } else {
+      setIsLoading(true)
+    }
+    setErrorMessage('')
 
     try {
-      console.log("hey")
-      const endpoint = query ?
-        `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
-      const response = await fetch(endpoint, API_OPTIONS);
+      const endpoint = query
+        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${pageNum}`
+        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${pageNum}`
 
-      // alert(response);
+      const response = await fetch(endpoint, API_OPTIONS)
 
       if (!response.ok) {
-        throw new Error('Failed to fetch movies');
+        throw new Error('Failed to fetch movies')
       }
 
-      const data = await response.json();
+      const data = await response.json()
 
-      if (data.response == 'False') {
-        setErrorMessage(data.Error || 'Failed to fetch movies');
-        setMovieList([]);
-        return;
-
+      if (data.response === 'False') {
+        setErrorMessage(data.Error || 'Failed to fetch movies')
+        if (!isLoadMore) {
+          setMovieList([])
+        }
+        return
       }
 
-      setMovieList(data.results || []);
+      setTotalPages(data.total_pages)
+      setHasMore(pageNum < data.total_pages)
 
-      if (query && data.results.length > 0) {
-        await updateSearchCount(query, data.results[0]);
+      if (isLoadMore) {
+        setMovieList(prevMovies => [...prevMovies, ...data.results])
+      } else {
+        setMovieList(data.results || [])
       }
 
+      if (query && data.results.length > 0 && !isLoadMore) {
+        await updateSearchCount(query, data.results[0])
+      }
     } catch (error) {
-      console.log(`Error While Fetching Movies: ${error}`);
-      setErrorMessage('Error Fetching Movies, Please Try Again Later.');
+      console.error(`Error While Fetching Movies: ${error}`)
+      setErrorMessage('Error Fetching Movies, Please Try Again Later.')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
+      setIsLoadingMore(false)
     }
   }
 
   const loadTrendingMovies = async () => {
     try {
-      const movies = await getTrendingMovies();
-
-      setTrendingMovies(movies);
-
+      const movies = await getTrendingMovies()
+      setTrendingMovies(movies)
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
   }
 
   useEffect(() => {
-    fetchMovies(debouncedSearchTerm);
+    if (debouncedSearchTerm) {
+      setPage(1)
+      setHasMore(true)
+      fetchMovies(debouncedSearchTerm, 1)
+    } else {
+      setPage(1)
+      setHasMore(true)
+      fetchMovies('', 1)
+    }
   }, [debouncedSearchTerm])
 
+  useEffect(() => {
+    if (page > 1) {
+      fetchMovies(debouncedSearchTerm, page, true)
+    }
+  }, [page])
 
-  // we didnt add this one in the above useEffect coz it would reload all the list everytime we search for sth making unneccessary calls
   useEffect(() => {
     loadTrendingMovies()
   }, [])
@@ -174,24 +214,35 @@ const App = () => {
             </h2>
             {/* {errorMessage && <p className='text-red-500'>{errorMessage}</p>} */}
 
-            {isLoading ? (
-              <p className='text-white'> Loading ... </p>
+            {isLoading && !isLoadingMore ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-light-200"></div>
+              </div>
             ) :
               errorMessage ? (
                 <p className='text-red-500'>{errorMessage}</p>
               ) : (
                 <ul>
-                  {movieList.map((movie) => (
-                    <MovieCard 
-                      key={movie.id} 
-                      movie={movie} 
-                      onMovieClick={handleMovieClick}
-                    />
+                  {movieList.map((movie, index) => (
+                    <li
+                      key={`${movie.id}-${index}`}
+                      ref={index === movieList.length - 1 ? lastMovieElementRef : null}
+                    >
+                      <MovieCard 
+                        movie={movie} 
+                        onMovieClick={handleMovieClick}
+                      />
+                    </li>
                   ))}
                 </ul>
               )
             }
 
+            {isLoadingMore && (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-light-200"></div>
+              </div>
+            )}
           </div>
         </section>
 
